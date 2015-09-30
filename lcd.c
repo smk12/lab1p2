@@ -11,16 +11,25 @@
 #include "lcd.h"
 #include "timer.h"
 
-#define LCD_DATA  
-#define LCD_RS  
-#define LCD_E   
+#define LCD_DATA LATE
+//#define LCD_RS  
+//#define LCD_E   
 
-#define TRIS_D7 
-#define TRIS_D6 
-#define TRIS_D5 
-#define TRIS_D4 
-#define TRIS_RS 
-#define TRIS_E  
+#define DB7 LATEbits.LATE6
+#define DB6 LATEbits.LATE4
+#define DB5 LATEbits.LATE2
+#define DB4 LATEbits.LATE0
+#define RS LATBbits.LATB11
+#define E  LATBbits.LATB13
+
+#define INPUT 1
+#define OUTPUT 0
+
+#define LCD_WRITE 1
+#define LCD_CONTROL 0
+
+#define LOWER 1
+#define UPPER 0
 
 /* This function should take in a two-byte word and writes either the lower or upper
  * byte to the last four bits of LATB. Additionally, according to the LCD data sheet
@@ -29,66 +38,183 @@
  * The command type is a simplification. From the data sheet, the RS is '1'
  * when you are simply writing a character. Otherwise, RS is '0'.
  */
-void writeFourBits(unsigned char word, unsigned int commandType, unsigned int delayAfter, unsigned int lower){
+void writeFourBits(unsigned char word, unsigned int commandType, unsigned int delayAfter, unsigned int lower)
+{
     //TODO:
+    if(lower)
+    {
+        DB7 = word<3>;
+        DB6 = word<2>;
+        DB5 = word<1>;
+        DB4 = word<0>;
+    }
+    else
+    {
+        DB7 = word<7>;
+        DB6 = word<6>;
+        DB5 = word<5>;
+        DB4 = word<4>;
+    }
+    RS = commandType;
+    delayUs(1);
+    E = 1;
+    delayUs(1);
+    E = 0;
+    delayUs(1);
+    delayUs(delayAfter);
+    RS = control;           //Turn off while not writing character
+    delayUs(1);
 }
 
 /* Using writeFourBits, this function should write the two bytes of a character
  * to the LCD.
  */
-void writeLCD(unsigned char word, unsigned int commandType, unsigned int delayAfter){
+void writeLCD(unsigned char word, unsigned int commandType, unsigned int delayAfter)
+{
     //TODO:
+    writeFourBits(word, commandType, UPPER);
+    writeFourBits(word, commandType, LOWER);
 }
 
 /* Given a character, write it to the LCD. RS should be set to the appropriate value.
  */
-void printCharLCD(char c) {
+void printCharLCD(char c) 
+{
     //TODO:
+    writeLCD(c, LCD_WRITE, 46);
 }
 /*Initialize the LCD
  */
 void initLCD(void) {
-    // Setup D, RS, and E to be outputs (0).
-
+    // Setup D, RS, and E to be outputs (0). Change TRIS_ to pins that will be in use
+    TRISEbits.TRISE6 = OUTPUT;
+    TRISEbits.TRISE4 = OUTPUT;
+    TRISEbits.TRISE2 = OUTPUT;
+    TRISEbits.TRISE0 = OUTPUT;
+    TRISBbits.TRISB11 = OUTPUT;
+    TRISBbits.TRISB13 = OUTPUT;
+    
     // Initilization sequence utilizes specific LCD commands before the general configuration
     // commands can be utilized. The first few initilition commands cannot be done using the
     // WriteLCD function. Additionally, the specific sequence and timing is very important.
+    delayUs(15000);
+    RS = 0;DB7 = 0;DB6 = 0;DB5 = 1;DB4 = 1;
+    E = 1;
+    delayUs(1);
+    E = 0;
+    
+    delayUs(4100);
+    RS = 0;DB7 = 0;DB6 = 0;DB5 = 1;DB4 = 1;
+    E = 1;
+    delayUs(1);
+    E = 0;
+
+    delayUs(110);
+    RS = 0;DB7 = 0;DB6 = 0;DB5 = 1;DB4 = 1;
+    E = 1;
+    delayUs(1);
+    E = 0;  
+    delayUs(1);
+    
 
     // Enable 4-bit interface
-
+    RS = 0;DB7 = 0;DB6 = 0;DB5 = 1;DB4 = 0;
+    E = 1;
+    delayUs(1);
+    E = 0;  
+    delayUs(40);
     // Function Set (specifies data width, lines, and font.
-
+    RS = 0;DB7 = 0;DB6 = 0;DB5 = 1;DB4 = 0;
+    E = 1;
+    delayUs(1);
+    E = 0;
+    delayUs(1);
+    RS = 0;DB7 = 1; DB6 = 0;DB5 = 0;DB4 = 0;
+    E = 1;
+    delayUs(1);
+    E = 0;  
+    delayUs(40);
     // 4-bit mode initialization is complete. We can now configure the various LCD
     // options to control how the LCD will function.
 
     // TODO: Display On/Off Control
         // Turn Display (D) Off
+    RS = 0;DB7 = 0;DB6 = 0;DB5 = 0;DB4 = 0;
+    E = 1;
+    delayUs(1);
+    E = 0;
+    delayUs(1);
+    RS = 0;DB7 = 1; DB6 = 0;DB5 = 0;DB4 = 0;
+    E = 1;
+    delayUs(1);
+    E = 0;  
+    delayUs(40);
     // TODO: Clear Display (The delay is not specified in the data sheet at this point. You really need to have the clear display delay here.
+    RS = 0;DB7 = 0;DB6 = 0;DB5 = 0;DB4 = 0;
+    E = 1;
+    delayUs(1);
+    E = 0;
+    delayUs(1);
+    RS = 0;DB7 = 0; DB6 = 0;DB5 = 0;DB4 = 1;
+    E = 1;
+    delayUs(1);
+    E = 0;  
+    delayUs(1000);
     // TODO: Entry Mode Set
         // Set Increment Display, No Shift (i.e. cursor move)
+    RS = 0;DB7 = 0;DB6 = 0;DB5 = 0;DB4 = 0;
+    E = 1;
+    delayUs(1);
+    E = 0;
+    delayUs(1);
+    RS = 0;DB7 = 0; DB6 = 1;DB5 = 1;DB4 = 1;
+    E = 1;
+    delayUs(1);
+    E = 0;  
+    delayUs(40);
     // TODO: Display On/Off Control
         // Turn Display (D) On, Cursor (C) Off, and Blink(B) Off
-}
+    
+}   
 
 /*
  * You can use printCharLCD here. Note that every time you write a character
  * the cursor increments its position automatically.
  * Since a string is just a character array, try to be clever with your use of pointers.
  */
-void printStringLCD(const char* s) {
+void printStringLCD(const char* s) 
+{
     //TODO:
+    int x = 0;
+    while(s[x]!=void)
+    {
+        printCharLCD(s[x]);
+    }
 }
 
 /*
  * Clear the display.
  */
-void clearLCD(){
+void clearLCD()
+{
+    RS = 0;DB7 = 0;DB6 = 0;DB5 = 0;DB4 = 0;
+    E = 1;
+    delayUs(1);
+    E = 0;
+    delayUs(1);
+    RS = 0;DB7 = 0;DB6 = 0;DB5 = 0;DB4 = 1;
+    E = 1;
+    delayUs(1);
+    E = 0;
+    delayUs(1000);
 }
 
 /*
  Use the command for changing the DD RAM address to put the cursor somewhere.
  */
-void moveCursorLCD(unsigned char x, unsigned char y){
+void moveCursorLCD(unsigned char x, unsigned char y)
+{
+    
 }
 
 /*
