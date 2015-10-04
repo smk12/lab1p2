@@ -38,22 +38,22 @@
  * The command type is a simplification. From the data sheet, the RS is '1'
  * when you are simply writing a character. Otherwise, RS is '0'.
  */
-void writeFourBits(unsigned char word, unsigned int commandType, unsigned int delayAfter, unsigned int lower)
+void writeFourBits(unsigned char word, unsigned int commandType, unsigned int delayAfter, unsigned int bound)
 {
     //TODO:
-    if(lower)
+    if(bound==0)
     {
-        DB7 = word<3>;
-        DB6 = word<2>;
-        DB5 = word<1>;
-        DB4 = word<0>;
+        DB7 = (word & 0x80)>>7;
+        DB6 = (word & 0x40)>>6;
+        DB5 = (word & 0x20)>>5;
+        DB4 = (word & 0x10)>>4;
     }
     else
     {
-        DB7 = word<7>;
-        DB6 = word<6>;
-        DB5 = word<5>;
-        DB4 = word<4>;
+        DB7 = (word & 0x08)>>3;
+        DB6 = (word & 0x04)>>2;
+        DB5 = (word & 0x02)>>1;
+        DB4 = (word & 0x01);
     }
     RS = commandType;
     delayUs(1);
@@ -62,7 +62,7 @@ void writeFourBits(unsigned char word, unsigned int commandType, unsigned int de
     E = 0;
     delayUs(1);
     delayUs(delayAfter);
-    RS = control;           //Turn off while not writing character
+    RS = LCD_CONTROL;           //Turn off while not writing character
     delayUs(1);
 }
 
@@ -72,8 +72,8 @@ void writeFourBits(unsigned char word, unsigned int commandType, unsigned int de
 void writeLCD(unsigned char word, unsigned int commandType, unsigned int delayAfter)
 {
     //TODO:
-    writeFourBits(word, commandType, UPPER);
-    writeFourBits(word, commandType, LOWER);
+    writeFourBits(word, commandType, 46, UPPER);
+    writeFourBits(word, commandType, 46, LOWER);
 }
 
 /* Given a character, write it to the LCD. RS should be set to the appropriate value.
@@ -186,7 +186,7 @@ void printStringLCD(const char* s)
 {
     //TODO:
     int x = 0;
-    while(s[x]!=void)
+    while(s[x]!=NULL)
     {
         printCharLCD(s[x]);
     }
@@ -214,7 +214,38 @@ void clearLCD()
  */
 void moveCursorLCD(unsigned char x, unsigned char y)
 {
+    DB7 = 1;                            //set DD RAM ADDRESS
+    if(x==0)                            //Handles most sig bits
+    {
+        DB6 = 0; DB5 = 0; DB4 = 0;
+    }
+    else if(x==1)
+    {
+        DB6 = 1; DB5 = 0; DB4 = 0;
+    }
+    E = 1;
+    delayUs(1);
+    E = 0;
+    delayUs(1);
     
+    DB7 = 0;                            //least sig figs
+    if(y==0 | y==2 | y==4 | y==6)
+        DB4 = 0;  
+    else
+        DB4 = 1;
+    
+    if(y==0 | y==1 | y==4 | y==5)
+        DB5 = 0;
+    else
+        DB5 = 1;
+    if(y==0 | y==1 | y==2 | y==3)
+        DB6 = 0;
+    else
+        DB6 = 1;
+    E = 1;
+    delayUs(1);
+    E = 0;
+    delayUs(40);    
 }
 
 /*
