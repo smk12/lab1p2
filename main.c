@@ -19,6 +19,7 @@
 
 int main(void)
 {
+    SYSTEMConfigPerformance(40000000);
 
     while(1)
     {
