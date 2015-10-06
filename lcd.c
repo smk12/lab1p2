@@ -66,8 +66,7 @@ void writeFourBits(unsigned char word, unsigned int commandType, unsigned int de
     delayUs(1);
     if(bound==LOWER)
     {
-        for(x=0;x<=delayAfter;x++)
-            delayUs(1);
+        delayUs(delayAfter);
     }
     
 }
@@ -111,21 +110,19 @@ void initLCD(void) {
     // Initilization sequence utilizes specific LCD commands before the general configuration
     // commands can be utilized. The first few initilition commands cannot be done using the
     // WriteLCD function. Additionally, the specific sequence and timing is very important.
-    for(x=0;x<=15000;x++)
-        delayUs(1);
+    for(x=0;x<3;x++)
+        delayUs(5000);
     RS = 0;DB7 = 0;DB6 = 0;DB5 = 1;DB4 = 1;
     E = 1;
     delayUs(1);
     E = 0;
-    for(x=0;x<=4100;x++)
-        delayUs(1);
+    delayUs(4100);
     
     RS = 0;DB7 = 0;DB6 = 0;DB5 = 1;DB4 = 1;
     E = 1;
     delayUs(1);
     E = 0;
-    for(x=0;x<=100;x++)
-        delayUs(1);
+    delayUs(100);
     
     // Enable 4-bit interface
     RS = 0;DB7 = 0;DB6 = 0;DB5 = 1;DB4 = 1;
@@ -137,8 +134,7 @@ void initLCD(void) {
     E = 1;
     delayUs(1);
     E = 0;  
-    for(x=0;x<=40;x++)
-        delayUs(1);
+    delayUs(40);
     
     // Function Set (specifies data width, lines, and font.
     RS = 0;DB7 = 0;DB6 = 0;DB5 = 1;DB4 = 0;
@@ -150,8 +146,7 @@ void initLCD(void) {
     E = 1;
     delayUs(1);
     E = 0;
-    for(x=0;x<=40;x++)
-        delayUs(1);
+    delayUs(40);
     // 4-bit mode initialization is complete. We can now configure the various LCD
     // options to control how the LCD will function.
 
@@ -166,8 +161,7 @@ void initLCD(void) {
     E = 1;
     delayUs(1);
     E = 0;
-    for(x=0;x<=40;x++)
-        delayUs(1);
+    delayUs(40);
     // TODO: Clear Display (The delay is not specified in the data sheet at this point. You really need to have the clear display delay here.
     RS = 0;DB7 = 0;DB6 = 0;DB5 = 0;DB4 = 0;
     E = 1;
@@ -178,8 +172,7 @@ void initLCD(void) {
     E = 1;
     delayUs(1);
     E = 0;
-    for(x=0;x<=1640;x++)
-        delayUs(1);
+    delayUs(1640);
     // TODO: Entry Mode Set
         // Set Increment Display, No Shift (i.e. cursor move)
     RS = 0;DB7 = 0;DB6 = 0;DB5 = 0;DB4 = 0;
@@ -191,8 +184,7 @@ void initLCD(void) {
     E = 1;
     delayUs(1);
     E = 0;
-    for(x=0;x<=40;x++)
-        delayUs(1);
+    delayUs(40);
     // TODO: Display On/Off Control
         // Turn Display (D) On, Cursor (C) Off, and Blink(B) Off
     RS = 0;DB7 = 0;DB6 = 0;DB5 = 0;DB4 = 0;
@@ -206,8 +198,7 @@ void initLCD(void) {
     delayUs(1);
     E = 0;
     delayUs(1);
-    for(x=0;x<=40;x++)
-        delayUs(1);
+    delayUs(40);
     
 }   
 
@@ -241,8 +232,7 @@ void clearLCD()
     E = 1;
     delayUs(1);
     E = 0;
-    for(x=0;x<=1000;x++)
-        delayUs(1);
+    delayUs(1000);
 }
 
 /*
@@ -250,7 +240,6 @@ void clearLCD()
  */
 void moveCursorLCD(unsigned char x, unsigned char y)
 {
-    int z = 0;
     DB7 = 1;                            //set DD RAM ADDRESS
     if(x==0)                            //Handles most sig bits
     {
@@ -282,8 +271,7 @@ void moveCursorLCD(unsigned char x, unsigned char y)
     E = 1;
     delayUs(1);
     E = 0;
-    for(z=0;z<=40;z++)
-        delayUs(1);    
+    delayUs(40);  
 }
 
 /*
@@ -294,25 +282,13 @@ void moveCursorLCD(unsigned char x, unsigned char y)
 void testLCD(){
     initLCD();
     int i = 0;
-    int x = 0;
     printCharLCD('c');
-    for(i = 0; i < 1000; i++)
-    {
-        for(x=0;x<=1000;x++)
-            delayUs(1);
-    }
+    for(i = 0; i < 1000; i++) delayUs(1000);
     clearLCD();
     printStringLCD("Hello!");
-    moveCursorLCD(1, 2);            //X ud  Y lr
-    for(i = 0; i < 1000; i++) 
-    {
-        for(x=0;x<=1000;x++)
-            delayUs(1);
-    }
+    moveCursorLCD(1, 2);
+    for(i = 0; i < 1000; i++) delayUs(1000);
     printStringLCD("Hello!");
-    for(i = 0; i < 1000; i++) 
-    {
-        for(x=0;x<=1000;x++)
-            delayUs(1);
-    }
+    for(i = 0; i < 1000; i++) delayUs(1000);
+
 }
