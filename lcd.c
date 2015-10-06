@@ -94,11 +94,11 @@ void printCharLCD(char c)
  */
 void initLCD(void) {
     // Setup D, RS, and E to be outputs (0). Change TRIS_ to pins that will be in use
-    ANSELEbits.ANSE2 = 0;
-    ANSELEbits.ANSE4 = 0;
-    ANSELEbits.ANSE6 = 0;
-    ANSELBbits.ANSB11 = 0;
-    ANSELBbits.ANSB13 = 0;
+    //ANSELEbits.ANSE2 = 0;
+    //ANSELEbits.ANSE4 = 0;
+    //ANSELEbits.ANSE6 = 0;
+    //ANSELBbits.ANSB11 = 0;
+    //ANSELBbits.ANSB13 = 0;
     
     TRISEbits.TRISE6 = OUTPUT;
     TRISEbits.TRISE4 = OUTPUT;
@@ -117,30 +117,29 @@ void initLCD(void) {
     E = 1;
     delayUs(1);
     E = 0;
-    
     for(x=0;x<=4100;x++)
         delayUs(1);
+    
     RS = 0;DB7 = 0;DB6 = 0;DB5 = 1;DB4 = 1;
     E = 1;
     delayUs(1);
     E = 0;
-    
     for(x=0;x<=100;x++)
         delayUs(1);
+    
+    // Enable 4-bit interface
     RS = 0;DB7 = 0;DB6 = 0;DB5 = 1;DB4 = 1;
     E = 1;
     delayUs(1);
     E = 0;  
     delayUs(1);
-    
-
-    // Enable 4-bit interface
     RS = 0;DB7 = 0;DB6 = 0;DB5 = 1;DB4 = 0;
     E = 1;
     delayUs(1);
     E = 0;  
     for(x=0;x<=40;x++)
         delayUs(1);
+    
     // Function Set (specifies data width, lines, and font.
     RS = 0;DB7 = 0;DB6 = 0;DB5 = 1;DB4 = 0;
     E = 1;
@@ -188,7 +187,7 @@ void initLCD(void) {
     delayUs(1);
     E = 0;
     delayUs(1);
-    RS = 0;DB7 = 0; DB6 = 1;DB5 = 1;DB4 = 1;
+    RS = 0;DB7 = 0; DB6 = 1;DB5 = 1;DB4 = 0;
     E = 1;
     delayUs(1);
     E = 0;
@@ -202,7 +201,7 @@ void initLCD(void) {
     E = 0;
     delayUs(1);
     
-    RS = 0;DB7 = 1;DB6 = 1;DB5 = 0;DB4 = 0;
+    RS = 0;DB7 = 1;DB6 = 1;DB5 = 0;DB4 = 1;     //DB4 1 is cursor blink
     E = 1;
     delayUs(1);
     E = 0;
